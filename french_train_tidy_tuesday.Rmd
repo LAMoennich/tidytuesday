@@ -1,0 +1,91 @@
+---
+title: 'Tidy Tuesday 2019-02-28 : French Trains'
+author: "Laurie Ann Moennich"
+date: "2/25/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2);
+library(maptools);
+library(forecast);
+library(lubridate);
+library(ggthemes);
+library(gganimate);
+library(tidyverse)
+```
+
+```{r loading_data}
+trains <- read.csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-02-26/full_trains.csv")
+```
+
+```{r}
+# overview of my trains data
+skim(trains)
+```
+
+```{r}
+# just one more peek at what is missing
+colSums(is.na(trains))
+```
+
+```{r}
+#selecting departures from paris
+
+paris_trips <- trains %>% 
+  filter(str_detect(departure_station, "PARIS"))
+```
+
+```{r}
+#animated line plot of trains arriving late from paris grouped by destination, between 2015 and 2018
+plot = ggplot(paris_trips, aes(year, num_arriving_late, group=arrival_station, color=arrival_station)) +
+  geom_line() +
+  geom_point(size =2) +
+  scale_x_continuous( breaks = c(2015:2018)) +
+  transition_reveal(year) +
+  coord_cartesian( clip = 'off') +
+  labs (title = 'Number of Trains Arriving Late by Destination',
+        y = 'Number of Late Trains', x= " ",
+        caption = "@lam_mph, source = SNCF") +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.title = element_blank())
+
+anim_save(filename = "latetrains.gif", animation = plot)
+```
+```{r}
+#animated bar chart of trains arriving late from paris grouped by destination, between 2015 and 2018
+
+p <- ggplot(data=paris_trips, aes(x=arrival_station, y=num_arriving_late)) + 
+  geom_col(aes(fill=arrival_station), width = 0.8) + 
+  coord_flip()+
+  transition_time(year)+
+  labs(title="SNCF Trips from Paris Arriving Late,
+       by Destination: 2015 to 2018", 
+       subtitle="Year: {round(frame_time)}",
+       x="", y="", 
+       caption="@LAM_MPH, Source: SNCF")+ 
+  theme_minimal(11) +
+  theme(legend.position = "none",
+        text=element_text(family="Arial"),
+        plot.title=element_text(size=13, hjust=0, face='bold'),
+        plot.subtitle=element_text(size=12, hjust=0, face='italic'),
+        plot.caption=element_text(size=8, hjust=1),
+        axis.text.x = element_text(size=8),
+        axis.text.y = element_text(size=10),
+        axis.ticks.y = element_blank())
+
+#Save GGplot animation
+anim_save(filename = "latetrains_attempt2.gif", animation = p)
+
+```
+
+
+
+
+
+
