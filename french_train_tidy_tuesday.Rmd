@@ -84,7 +84,7 @@ paris_problems$percentage <- (paris_problems$num_late_at_departure/paris_problem
 p <- 
 
   ggplot(data=paris_problems, 
-         aes(x=arrival_station,y=percentage)) + 
+         aes(x=reorder(arrival_station, percentage), y=percentage)) + 
   geom_col(aes(fill=arrival_station), width = 0.8) + 
   coord_flip()+
   transition_time(year)+
